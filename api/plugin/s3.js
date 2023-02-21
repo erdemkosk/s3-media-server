@@ -75,13 +75,11 @@ module.exports = {
     };
 
     const contentLength = await module.exports.getContentLength({ fileName });
-    console.log(contentLength);
     const stream = await s3.getObject(params).createReadStream();
 
     const parsedRange = rangeParser(contentLength, range);
 
     const { start, end } = parsedRange[0];
-
 
     const total = contentLength;
 
@@ -101,5 +99,16 @@ module.exports = {
     return headResult.ContentLength;
   },
 
+  async getFileList() {
+    const params = {
+      Bucket: S3_BUCKET,
+      Delimiter: '/',
+    };
 
+    const possibleFiles = await s3.listObjects(params).promise();
+
+    const files = possibleFiles.Contents.filter(item => item.Key.endsWith('.mp4'));
+
+    return files;
+  },
 };

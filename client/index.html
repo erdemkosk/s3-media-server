@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>S3 Video Streaming Page</title>
+    <!-- Tailwind CSS eklentisi -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.17/tailwind.min.css">
+  </head>
+  <body class="bg-gray-100">
+    <!-- Sayfa başlığı ve açıklaması -->
+    <header class="bg-white shadow py-4">
+      <div class="container mx-auto px-4">
+        <h1 class="text-2xl font-bold text-gray-800">S3 Video Streaming Page</h1>
+        <p class="text-gray-600">Select a video file to play:</p>
+      </div>
+    </header>
+
+    <!-- Video oynatıcı ve dosya listesi -->
+    <main class="container mx-auto py-8 px-4 flex flex-col md:flex-row">
+      <!-- Dosya listesi -->
+      <div class="w-full md:w-1/3">
+        <ul id="file-list-items" class="bg-white shadow overflow-y-auto max-h-screen">
+          
+        </ul>
+      </div>
+
+      <!-- Video oynatıcı -->
+      <div class="w-full md:w-2/3 flex-shrink-0">
+        <div class="relative" style="padding-bottom: 56.25%;">
+          <video id="video-player" class="absolute inset-0 w-full h-full object-cover" controls>
+            <source id="video-source" src="" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </main>
+
+    <!-- Tailwind CSS JavaScript eklentisi -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+      const videoPlayer = document.getElementById('video-player');
+      const videoSource = document.getElementById('video-source');
+      const fileListItems = document.getElementById('file-list-items');
+
+      function listFiles() {
+        fetch('http://localhost:4000/api/stream/file-list')
+          .then(response => response.json())
+          .then(files => {
+            // Clear the list
+            fileListItems.innerHTML = '';
+
+            // Add each file as a list item
+            files.forEach(file => {
+              const listItem = document.createElement('li');
+              listItem.textContent = file.Key;
+              listItem.classList.add("px-4", "py-2", "border-b" , "hover:bg-gray-200", "cursor-pointer");
+              listItem.addEventListener('click', () => selectFile(file.Key));
+              fileListItems.appendChild(listItem);
+            });
+          })
+          .catch(error => {
+            console.error('An error occurred while listing the files:', error);
+          });
+      }
+
+      function selectFile(file) {
+        console.log(`http://localhost:4000/api/stream?fileName=${file}`);
+        videoSource.setAttribute('src', `http://localhost:4000/api/stream?fileName=${encodeURI(file)}`);
+        videoPlayer.load();
+        //videoPlayer.play();
+      }
+
+      // Initial list files call
+      listFiles();
+    </script>
+  </body>
+</html>

@@ -32,7 +32,7 @@ module.exports = {
       if (uploadPromises.length >= CONCURRENCY_LIMIT || partNumber === numParts) {
         // eslint-disable-next-line no-await-in-loop
         const updatedParts = await Promise.all(uploadPromises);
-        parts = [...updatedParts];
+        parts = [...parts, ...updatedParts];
         uploadPromises.length = 0;
       }
     }
