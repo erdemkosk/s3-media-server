@@ -7,6 +7,7 @@ let enviromentConfig = require(`./enviroments/${env}`);
 
 const swagger = {
   enabled: process.env.SWAGGER_ENABLED || true,
+  test: process.env.TEST,
   host: process.env.SWAGGER_HOST || `${ip.address()}:${enviromentConfig.server.port}`,
 };
 
