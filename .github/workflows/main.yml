@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set Git User Identity
+        run: |
+          git config --global user.email "erdemkosk@gmail.com"
+          git config --global user.name "Erdem Köşk"
+
       - name: Check out code
         uses: actions/checkout@v2  # GitHub Actions'ın önceden tanımlanmış bir eylemi
 
