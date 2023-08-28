@@ -1,0 +1,56 @@
+name: Check and Update .env.example on PR
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-update-env-example:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for process.env values
+        run: |
+          # Değişiklikleri çek
+          git fetch origin ${{ github.event.pull_request.head.ref }}:${{ github.event.pull_request.head.ref }}
+          git checkout ${{ github.event.pull_request.head.ref }}
+
+          # .env.example dosyasını kontrol et veya oluştur
+          if [ ! -f .env.example ]; then
+            touch .env.example
+          fi
+
+          # .env.example dosyasının içeriğini al
+          env_example_content=$(<.env.example)
+
+          # PR içeriğini çek
+          pr_diff=$(git diff --name-only HEAD^)
+
+          # PR içeriğindeki dosyaları işle
+          for file in $pr_diff; do
+            # Dosya içeriğini kontrol et
+            file_content=$(<"$file")
+
+            # Dosya içeriğindeki process.env değerlerini bul
+            process_env_values=$(echo "$file_content" | grep -Eo 'process\.env\.[A-Za-z_][A-Za-z_0-9]*')
+
+            # Her bir process.env değerini kontrol et
+            for value in $process_env_values; do
+              # Değer .env.example dosyasında eksikse veya farklısa, .env.example dosyasını ekler veya günceller
+              if [[ ! $env_example_content == *"$value"* ]]; then
+                # Değerin başka bir değerle değiştirilip değiştirilmediğini kontrol et
+                if [[ $env_example_content == *"$value"* ]]; then
+                  # Değer aynı, bu yüzden güncelleme yapmaya gerek yok
+                  continue
+                fi
+                # Değeri .env.example dosyasına ekler veya günceller
+                sed -i "/$value/c$value=<default_value>" .env.example
+                git add .env.example
+                git commit -m "Update $value in .env.example"
+                git push origin ${{ github.event.pull_request.head.ref }}
+              fi
+            done
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
