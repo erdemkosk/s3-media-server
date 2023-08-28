@@ -26,7 +26,7 @@ jobs:
           # Değişiklikleri çek ve .env.example dosyasını güncelle
           git -C "$current_directory" fetch origin ${{ github.event.pull_request.head.ref }}
           git -C "$current_directory" checkout ${{ github.event.pull_request.head.ref }}
-          git -C "$current_directory" merge-base main ${{ github.event.pull_request.head.ref }} > merge_base.txt
+          git -C "$current_directory" merge-base master ${{ github.event.pull_request.head.ref }} > merge_base.txt
           merge_base=$(cat merge_base.txt)
 
           # .env.example dosyasının bulunması gereken dizini belirtin (dizin adını değiştirmeniz gerekiyor)
@@ -37,7 +37,7 @@ jobs:
             touch "$env_example_dir/.env.example"
           fi
 
-          # PR branch'i ile main branch'i arasındaki farkı çek
+          # PR branch'i ile master branch'i arasındaki farkı çek
           pr_diff=$(git -C "$current_directory" diff --name-only "$merge_base")
 
           # PR içeriğindeki dosyaları işle
