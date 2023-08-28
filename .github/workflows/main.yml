@@ -3,7 +3,7 @@ name: Check and Update .env.example on PR
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   check-update-env-example:
@@ -24,7 +24,7 @@ jobs:
           echo "Current Directory: $current_directory"
           
           # Değişiklikleri çek ve .env.example dosyasını güncelle
-          git -C "$current_directory" fetch origin ${{ github.event.pull_request.head.ref }}:main
+          git -C "$current_directory" fetch origin ${{ github.event.pull_request.head.ref }}:master
           git -C "$current_directory" checkout ${{ github.event.pull_request.head.ref }}
 
           # .env.example dosyasını kontrol et veya oluştur
@@ -33,7 +33,7 @@ jobs:
           fi
 
           # PR içeriğini çek
-          pr_diff=$(git -C "$current_directory" diff --name-only main)
+          pr_diff=$(git -C "$current_directory" diff --name-only master)
 
           # PR içeriğindeki dosyaları işle
           for file in $pr_diff; do
