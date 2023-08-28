@@ -16,6 +16,8 @@
 ![alt text](https://i.imgur.com/1jKjaAp.png)
 ![alt text](https://i.imgur.com/TUsp3G8.png)
 
+process.env.VAL = val
+
 ## Endpoints
 
 | Urls                                             | Type | Params                             | Aim                                     |
