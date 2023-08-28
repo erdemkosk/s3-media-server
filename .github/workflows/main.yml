@@ -10,27 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check for process.env values
+      - name: Get Current Directory
         run: |
-          # Değişiklikleri çek
-          git fetch origin ${{ github.event.pull_request.head.ref }}:${{ github.event.pull_request.head.ref }}
-          git checkout ${{ github.event.pull_request.head.ref }}
+          current_directory=$(pwd)
+          echo "Current Directory: $current_directory"
+          
+          # Değişiklikleri çek ve .env.example dosyasını güncelle
+          git -C "$current_directory" fetch origin ${{ github.event.pull_request.head.ref }}:${{ github.event.pull_request.head.ref }}
+          git -C "$current_directory" checkout ${{ github.event.pull_request.head.ref }}
 
           # .env.example dosyasını kontrol et veya oluştur
-          if [ ! -f .env.example ]; then
-            touch .env.example
+          if [ ! -f "$current_directory/.env.example" ]; then
+            touch "$current_directory/.env.example"
           fi
 
           # .env.example dosyasının içeriğini al
-          env_example_content=$(<.env.example)
+          env_example_content=$(<"$current_directory/.env.example")
 
           # PR içeriğini çek
-          pr_diff=$(git diff --name-only HEAD^)
+          pr_diff=$(git -C "$current_directory" diff --name-only HEAD^)
 
           # PR içeriğindeki dosyaları işle
           for file in $pr_diff; do
             # Dosya içeriğini kontrol et
-            file_content=$(<"$file")
+            file_content=$(<"$current_directory/$file")
 
             # Dosya içeriğindeki process.env değerlerini bul
             process_env_values=$(echo "$file_content" | grep -Eo 'process\.env\.[A-Za-z_][A-Za-z_0-9]*')
@@ -45,10 +48,10 @@ jobs:
                   continue
                 fi
                 # Değeri .env.example dosyasına ekler veya günceller
-                sed -i "/$value/c$value=<default_value>" .env.example
-                git add .env.example
-                git commit -m "Update $value in .env.example"
-                git push origin ${{ github.event.pull_request.head.ref }}
+                sed -i "/$value/c$value=<default_value>" "$current_directory/.env.example"
+                git -C "$current_directory" add "$current_directory/.env.example"
+                git -C "$current_directory" commit -m "Update $value in .env.example"
+                git -C "$current_directory" push origin ${{ github.event.pull_request.head.ref }}
               fi
             done
           done
