@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v2  # GitHub Actions'ın önceden tanımlanmış bir eylemi
+
       - name: Get Current Directory
         run: |
           current_directory=$(pwd)
