@@ -26,17 +26,16 @@ jobs:
           # Değişiklikleri çek ve .env.example dosyasını güncelle
           git -C "$current_directory" fetch origin ${{ github.event.pull_request.head.ref }}:${{ github.event.pull_request.head.ref }}
           git -C "$current_directory" checkout ${{ github.event.pull_request.head.ref }}
+          git -C "$current_directory" merge-base master ${{ github.event.pull_request.head.ref }} > merge_base.txt
+          merge_base=$(cat merge_base.txt)
 
           # .env.example dosyasını kontrol et veya oluştur
           if [ ! -f "$current_directory/.env.example" ]; then
             touch "$current_directory/.env.example"
           fi
 
-          # .env.example dosyasının içeriğini al
-          env_example_content=$(<"$current_directory/.env.example")
-
-          # PR içeriğini çek
-          pr_diff=$(git -C "$current_directory" diff --name-only HEAD^)
+          # PR branch'i ile master branch'i arasındaki farkı çek
+          pr_diff=$(git -C "$current_directory" diff --name-only "$merge_base")
 
           # PR içeriğindeki dosyaları işle
           for file in $pr_diff; do
@@ -57,11 +56,16 @@ jobs:
                 fi
                 # Değeri .env.example dosyasına ekler veya günceller
                 sed -i "/$value/c$value=<default_value>" "$current_directory/.env.example"
-                git -C "$current_directory" add "$current_directory/.env.example"
-                git -C "$current_directory" commit -m "Update $value in .env.example"
-                git -C "$current_directory" push origin ${{ github.event.pull_request.head.ref }}
               fi
             done
           done
+
+      - name: Commit and Push Changes
+        run: |
+          if [ -n "$(git -C "$current_directory" status --porcelain)" ]; then
+            git -C "$current_directory" add "$current_directory/.env.example"
+            git -C "$current_directory" commit -m "Update .env.example"
+            git -C "$current_directory" push origin ${{ github.event.pull_request.head.ref }}
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
