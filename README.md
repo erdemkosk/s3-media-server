@@ -9,6 +9,8 @@
 
 > Aws s3 based media server for uploading file fastest way and streaming on it.
 
+process.env = Test
+
 ## Demo
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/Qir4seehtvU/0.jpg)](https://www.youtube.com/watch?v=Qir4seehtvU)
